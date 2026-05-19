@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Запускает Producer, Consumer-потоки и корректно завершает ExecutorService.
@@ -63,34 +64,40 @@ public class TaskManager {
     }
 
     public void start() throws InterruptedException {
-        executorService = Executors.newFixedThreadPool(consumerCount + 1);
-        consumersRunning.set(true);
+        executorService = Executors.newFixedThreadPool(consumerCount);
 
-        OrderProducer producer = new OrderProducer(orderQueue, ordersToCreate,
-                new java.util.concurrent.atomic.AtomicInteger(0), addInvalidSample);
+        OrderProducer producer = new OrderProducer(
+                orderQueue,
+                ordersToCreate,
+                new AtomicInteger(0),
+                addInvalidSample
+        );
+
+        Thread producerThread = new Thread(producer, "producer-thread");
+        producerThread.start();
 
         for (int i = 0; i < consumerCount; i++) {
             OrderConsumer consumer = new OrderConsumer(
-                    orderQueue, processedOrders, validator, processor, consumersRunning);
+                    orderQueue,
+                    processedOrders,
+                    validator,
+                    processor,
+                    consumersRunning
+            );
             executorService.submit(consumer);
         }
 
-        executorService.submit(() -> {
-            try {
-                producer.run();
-            } finally {
-                consumersRunning.set(false);
-            }
-        });
+        producerThread.join();
+
+        consumersRunning.set(false);
+
         executorService.shutdown();
 
         if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-            consumersRunning.set(false);
             executorService.shutdownNow();
             executorService.awaitTermination(5, TimeUnit.SECONDS);
         }
 
-        consumersRunning.set(false);
         System.out.println("Итого обработано заказов: " + processedOrders.size());
     }
 

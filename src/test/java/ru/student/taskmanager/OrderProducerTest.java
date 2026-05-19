@@ -9,12 +9,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class OrderProducerTest {
 
     @Test
     void createOrderReturnsOrderWithFields() {
-        OrderProducer producer = new OrderProducer(new LinkedBlockingQueue<>(), 1);
+        OrderProducer producer = new OrderProducer(
+                new LinkedBlockingQueue<>(),
+                1,
+                new AtomicInteger(0),
+                false
+        );
         Order order = producer.createOrder("ORD-1", "Иван", OrderTypeValue.URGENT);
 
         assertEquals("ORD-1", order.getId());
@@ -25,7 +31,12 @@ class OrderProducerTest {
 
     @Test
     void createOrderForIndexMarksEveryThirdAsUrgent() {
-        OrderProducer producer = new OrderProducer(new LinkedBlockingQueue<>(), 10);
+        OrderProducer producer = new OrderProducer(
+                new LinkedBlockingQueue<>(),
+                10,
+                new AtomicInteger(0),
+                false
+        );
 
         assertEquals(OrderTypeValue.URGENT, producer.createOrderForIndex(0).getType());
         assertEquals(OrderTypeValue.REGULAR, producer.createOrderForIndex(1).getType());

@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class TaskManagerTest {
 
@@ -57,7 +58,12 @@ class TaskManagerTest {
     @Test
     void producerAddsOrdersToQueue() throws InterruptedException {
         BlockingQueue<Order> queue = new LinkedBlockingQueue<>();
-        OrderProducer producer = new OrderProducer(queue, 3);
+        OrderProducer producer = new OrderProducer(
+                queue,
+                3,
+                new AtomicInteger(0),
+                false
+        );
 
         Thread thread = new Thread(producer);
         thread.start();

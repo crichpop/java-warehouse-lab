@@ -6,7 +6,6 @@ import ru.student.taskmanager.model.OrderStatus;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -30,10 +29,6 @@ public class OrderConsumer implements Runnable {
         this.validator = validator;
         this.processor = processor;
         this.running = running;
-    }
-
-    public OrderConsumer(BlockingQueue<Order> orderQueue, Map<String, Order> processedOrders) {
-        this(orderQueue, processedOrders, new OrderValidator(), new OrderProcessor(), new AtomicBoolean(true));
     }
 
     @Override
@@ -79,7 +74,4 @@ public class OrderConsumer implements Runnable {
         }
     }
 
-    public void stop() {
-        running.set(false);
-    }
 }

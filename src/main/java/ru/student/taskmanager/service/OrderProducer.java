@@ -16,14 +16,6 @@ public class OrderProducer implements Runnable {
     private final AtomicInteger orderCounter;
     private final boolean addInvalidSample;
 
-    public OrderProducer(BlockingQueue<Order> orderQueue, int ordersToCreate) {
-        this(orderQueue, ordersToCreate, new AtomicInteger(0), false);
-    }
-
-    public OrderProducer(BlockingQueue<Order> orderQueue, int ordersToCreate, AtomicInteger orderCounter) {
-        this(orderQueue, ordersToCreate, orderCounter, false);
-    }
-
     public OrderProducer(BlockingQueue<Order> orderQueue, int ordersToCreate,
                          AtomicInteger orderCounter, boolean addInvalidSample) {
         this.orderQueue = orderQueue;
